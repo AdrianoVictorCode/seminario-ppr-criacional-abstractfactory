@@ -1,18 +1,52 @@
-const buildEntity = {
-    player: (entity) => {
-        return new Player(entity.health, entity.speed, entity.damage, entity.controller);
-    },
-    enemy: (entity) => {
-        return new Enemy(entity.health, entity.speed, entity.damage, entity.ai);
-    },
-};
 
-class EntityFactory {
-    static createEntity({ type, health = 3, speed = 1, damage = 1, ai = "basic", controller = 1 }) {
-        const entity = { type, health, speed, damage, ai, controller };
-        return buildEntity[entity.type](entity);
+
+class Entity {
+    constructor(type, health, speed, damage) {
+        this.type = type;
+        this.health = health;
+        this.speed = speed;
+        this.damage = damage;
     }
 }
 
-const player1 = EntityFactory.createEntity({ type: "player" });
-const enemy1 = EntityFactory.createEntity({ type: "enemy", health: 5, speed: 1, damage: 3, ai: "melee" });
+class Player extends Entity {
+    constructor(health, speed, damage, controller) {
+        super("player", health, speed, damage);
+        this.controller = controller;
+    }
+}
+
+class Enemy extends Entity {
+    constructor(health, speed, damage, ai) {
+        super("enemy", health, speed, damage);
+        this.ai = ai;
+    }
+}
+
+class EntityFactory {
+    createEntity(type, attributes) {
+        throw new Error("Método deve ser implementado pelas subclasses");
+    }
+}
+
+class PlayerFactory extends EntityFactory {
+    createEntity({ health = 3, speed = 1, damage = 1, controller = 1 }) {
+        return new Player(health, speed, damage, controller);
+    }
+}
+
+class EnemyFactory extends EntityFactory {
+    createEntity({ health = 5, speed = 1, damage = 3, ai = "basic" }) {
+        return new Enemy(health, speed, damage, ai);
+    }
+}
+
+const playerFactory = new PlayerFactory();
+const enemyFactory = new EnemyFactory();
+
+const player1 = playerFactory.createEntity({ health: 10, speed: 2, damage: 5, controller: "keyboard" });
+const enemy1 = enemyFactory.createEntity({ health: 8, speed: 1, damage: 4, ai: "aggressive" });
+
+console.log(player1);
+console.log(enemy1);
+
